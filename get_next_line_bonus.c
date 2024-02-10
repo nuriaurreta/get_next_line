@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nuria <nuria@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 11:44:09 by nuria             #+#    #+#             */
-/*   Updated: 2024/02/10 12:47:50 by nuria            ###   ########.fr       */
+/*   Updated: 2024/02/10 12:47:34 by nuria            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char		*fill_line(int fd, char *chars, char *buffer);
 char		*read_line(char *line);
@@ -19,16 +19,26 @@ char		*ft_substr(char const *s, unsigned int start, size_t len);
 
 char	*get_next_line(int fd)
 {
-	static char	*chars;
+	static char	*chars[4096];
 	char		*line;
-	static char	buffer [BUFFER_SIZE + 1];
+	char		*buffer;
 
-	if (fd < 0 && read(fd, NULL, 0) < 0 || BUFFER_SIZE <= 0)
+	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (buffer == NULL)
 		return (NULL);
-	line = fill_line(fd, chars, buffer);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+	{
+		free (buffer);
+		return (NULL);
+	}
+	line = fill_line(fd, chars[fd], buffer);
+	free (buffer);
 	if (!line)
-		return (chars = 0, NULL);
-	chars = read_line(line);
+	{
+		chars[fd] = NULL;
+		return (NULL);
+	}
+	chars[fd] = read_line(line);
 	return (line);
 }
 
